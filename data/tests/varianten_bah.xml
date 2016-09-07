@@ -1,0 +1,98 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<!--
+varianten_bah.xml - Example file for Wuchshüllenrechner
+
+Copyright (C) 2016 Tobias Helfenstein <tobias.helfenstein@mailbox.org>
+Copyright (C) 2016 Anton Hammer <hammer.anton@gmail.com>
+Copyright (C) 2016 Sebastian Hein <hein@hs-rottenburg.de>
+Copyright (C) 2016 Hochschule für Forstwirtschaft Rottenburg <hfr@hs-rottenburg.de>
+
+This file is part of Wuchshüllenrechner.
+
+Wuchshüllenrechner is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Wuchshüllenrechner is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+
+<project>
+    <header>
+        <name>Alle Varianten von Hammer für Berg-Ahorn</name>
+    </header>
+    <data>
+        <variant>
+            <type>0</type>
+            <name>Zaunvariante mit 900 Berg-Ahorn und 400 Meter Länge</name>
+            <status>True</status>
+            <color>#f00</color>
+            <plant>
+                <species>16</species>
+                <count>900</count>
+                <cost>0.83</cost>
+                <planting>1.17</planting>
+                <tending>0.3</tending>
+            </plant>
+            <protection>
+                <model>0</model>
+                <length>400</length>
+                <area>0.0</area>
+                <installation>14.0</installation>
+            </protection>
+            <children>
+                <variant>
+                    <type>1</type>
+                    <name>Wuchshüllenvariante ohne Entsorgung mit 900 Berg-Ahorn</name>
+                    <status>True</status>
+                    <color>#4a7ebb</color>
+                    <plant>
+                        <species>16</species>
+                        <count>900</count>
+                        <cost>0.32</cost>
+                        <planting>0.74</planting>
+                        <tending>0.15</tending>
+                    </plant>
+                    <protection>
+                        <model>0</model>
+                        <count>900</count>
+                        <area>0.0</area>
+                        <cost>1.65</cost>
+                        <installation>1.61</installation>
+                        <removal>0.0</removal>
+                    </protection>
+                </variant>
+                <variant>
+                    <type>1</type>
+                    <name>Wuchshüllenvariante mit Entsorgung und 900 Berg-Ahorn</name>
+                    <status>True</status>
+                    <color>#be4b48</color>
+                    <plant>
+                        <species>16</species>
+                        <count>900</count>
+                        <cost>0.32</cost>
+                        <planting>0.74</planting>
+                        <tending>0.15</tending>
+                    </plant>
+                    <protection>
+                        <model>0</model>
+                        <count>900</count>
+                        <area>0.0</area>
+                        <cost>1.65</cost>
+                        <installation>1.61</installation>
+                        <removal>1.25</removal>
+                    </protection>
+                </variant>
+            </children>
+        </variant>
+    </data>
+</project>

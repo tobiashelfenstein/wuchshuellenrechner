@@ -1,0 +1,8 @@
+Beschreibung:   600 Berg-Ahorn 1+0 (30-50 cm)
+Steigung:       5.403008098727343
+
+Beschreibung:   600 Vogel-Kirschen 1+0 (30-50 cm)
+Steigung:       5.5794504181600955
+
+Beschreibung:   480 Berg-Ahorn und 120 Vogel-Kirschen 1+0 (30-50 cm)
+Steigung:       5.434445306439099
