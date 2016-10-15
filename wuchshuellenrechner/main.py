@@ -1,5 +1,5 @@
 """
-main.py - 
+main.py -
 
 Copyright (C) 2016 Tobias Helfenstein <tobias.helfenstein@mailbox.org>
 Copyright (C) 2016 Anton Hammer <hammer.anton@gmail.com>
@@ -24,30 +24,26 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 
+import os.path
 import sys
-from PyQt5.QtCore import QLibraryInfo
-from PyQt5.QtCore import QLocale
-from PyQt5.QtCore import QTranslator
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QSplashScreen
 from gui.window_main import MainWindow
 
 
 def main():
     app = QApplication(sys.argv)
-    
-    # load Qt translation for default dialogs
-    #qtTl = QTranslator()
-    #if qtTl.load(QLocale(), "qtbase", "_", QLibraryInfo.location(QLibraryInfo.TranslationsPath)):
-    #if qtTl.load(QLocale(), "qtbase", "_", "language"):
-    #    app.installTranslator(qtTl)
 
-    # load own application translation
-    #appTl = QTranslator()
-    #if appTl.load(QLocale(), "wuchshuellenrechner", "_", "language"):
-    #    app.installTranslator(appTl)
+    # create splash screen with sponsors
+    pixmap = QPixmap(os.path.join("resources","splash", "splash.jpg"))
+    splash = QSplashScreen(pixmap)
+    splash.show()
+    app.processEvents()
 
     window = MainWindow()
     window.show()
+    splash.finish(window)
 
     sys.exit(app.exec())
 
