@@ -67,7 +67,7 @@ executables = [
 ]
 
 setup(name='Wuchshüllenrechner',
-      version = '0.0.1',
+      version = '1.0.0-rc.1',
       description = 'Wuchshüllenrechner der Hochschule für Forstwirtschaft Rottenburg',
       options = options,
       executables = executables)
