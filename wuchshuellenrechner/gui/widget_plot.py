@@ -247,14 +247,10 @@ class VariantInfoWidget(QWidget):
             layout.addSpacing(10)
             layout.addWidget(QLabel("(" + QApplication.translate("VariantInfoWidget", "to change the color click on the symbol") + ")", wordWrap=True))
 
-            # show a link to the calculation help
-            docFile = os.path.join("doc", "documentation_" +
-                    self.locale().name()[:2] + ".pdf")
-
             layout.addSpacing(10)
             helpSymbol = QLabel(pixmap=QPixmap(os.path.join(self._OXYGEN_PATH_22, "system-help.png")))
-            helpText = QLabel("<a href='" + docFile + "'>" + QApplication.translate("VariantInfoWidget", "Explanation of calculation") + "</a>")
-            helpText.setOpenExternalLinks(True)
+            helpText = ClickableLabel("<a href='#'>" + QApplication.translate("VariantInfoWidget", "Explanation of calculation") + "</a>")
+            helpText.clicked.connect(self.showHelp)
             helpLayout = QHBoxLayout()
             helpLayout.setContentsMargins(0, 0, 0, 0)
             helpLayout.setSpacing(8)
@@ -294,6 +290,39 @@ class VariantInfoWidget(QWidget):
         self.layout.replaceWidget(self.results, new)
         self.results.deleteLater()
         self.results = new
+
+    def showHelp(self):
+        # create the documentation path with
+        # the current locale settings
+        docFile = os.path.join("doc", "documentation_" +
+                self.locale().name()[:2] + ".pdf")
+
+        # on every platfrom a different
+        # start operation is needed
+        if sys.platform == "win32":
+            os.startfile(docFile)
+        elif sys.platform == "darwin":
+            subprocess.call(("open", docFile))
+        elif sys.platform.startswith("linux"):
+            subprocess.call(("xdg-open", docFile))
+
+
+class ClickableLabel(QLabel):
+    """Creates a simple about dialog.
+
+    The about dialog contains general information about the application and
+    shows the copyright notice.
+    That's why the class has no attributes or return values.
+
+    """
+
+    clicked = pyqtSignal()
+
+    def __init__(self, text, parent=None):
+        super().__init__(text, parent)
+
+    def mouseReleaseEvent(self, event):
+        self.clicked.emit()
 
 
 class VariantPlotWidget(QWidget):
@@ -402,7 +431,6 @@ class VariantPlotWidget(QWidget):
             self.plantLine = None
 
         if isinstance(self.fenceLine, InfiniteLine):
-            self.controlWidget.lengthFinished.disconnect()
             self.fenceLine.disconnect()
             self.fenceLine = None
 
@@ -434,7 +462,6 @@ class VariantPlotWidget(QWidget):
         plantPen = pyqtgraph.mkPen(width=2, color=green)   # Hochschule für Forstwirtschaft Rottenburg
         self.plantLine = InfiniteLine(self.model.projectData("count"), 0, plantPen, True)
         self.plantLine.sigPositionChanged.connect(self.updateCount)
-        self.plantLine.sigPositionChangeFinished.connect(self.plotReady)        # TODO
         self.controlWidget.setCount(self.model.projectData("count"))
         self.controlWidget.countChanged.connect(self.plantLine.setValue)
 
@@ -452,7 +479,6 @@ class VariantPlotWidget(QWidget):
         self.fenceLine.sigPositionChangeFinished.connect(self.updatePlotLength)
         self.controlWidget.setLength(self.model.projectData("length"))
         self.controlWidget.lengthChanged.connect(self.fenceLine.setValue)
-        self.controlWidget.lengthFinished.connect(self.updatePlotLength)
 
         self.fenceLabel = TextItem(html="<b><font color='" + red.name() +
                 "'>Zaunlänge</font></b>", anchor=(-2.5, 0.9), angle=-90)
@@ -556,8 +582,6 @@ class VariantPlotWidget(QWidget):
 
             notice.exec()
 
-        self.plotReady.emit()
-
     def updateCount(self, line):
         # save the new value in the model and
         # update the control widget
@@ -568,6 +592,9 @@ class VariantPlotWidget(QWidget):
         # change the arrow item
         self.arrowItem.setPos(self.model.projectData("length"), self.model.projectData("count"))
 
+        # update the legend
+        self.plotReady.emit()
+
     def updateLength(self, line):
         # save the new value in the model and
         # update the control widget
@@ -577,6 +604,9 @@ class VariantPlotWidget(QWidget):
 
         # change the arrow item
         self.arrowItem.setPos(self.model.projectData("length"), self.model.projectData("count"))
+
+        # update the legend
+        self.plotReady.emit()
 
     def setPlantLineVisible(self, state):
         # check, if plant line is not None to avoid errors
@@ -633,8 +663,6 @@ class NaturalPlotView(GraphicsView):
     That's why the class has no attributes or return values.
 
     """
-
-    sigClicked = Signal(object)
 
     def __init__(self):
         super().__init__()

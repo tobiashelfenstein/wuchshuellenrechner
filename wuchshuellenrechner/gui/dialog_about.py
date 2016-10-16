@@ -36,6 +36,7 @@ from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QSpacerItem
 from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QGridLayout
 from PyQt5.QtWidgets import QFrame
 from PyQt5.QtWidgets import QListWidget
 from PyQt5.QtWidgets import QListWidgetItem
@@ -138,12 +139,25 @@ class AboutDialog(QDialog):
         rightLayout.addItem(spacerCopyright)
 
         # supporters
+        supportersLayout = QGridLayout()
+        supportersLayout.setSpacing(20)
         shSupporters = QLabel(QApplication.translate("AboutDialog", "Supporters"))    # Unterstützer
         shSupporters.setFont(shFont)
-        rightLayout.addWidget(shSupporters)
+        supportersLayout.addWidget(shSupporters, 0, 0, 1, 2)
 
-        appSupporters = QLabel(pixmap=QPixmap(os.path.join(self._LOGOS_PATH, "university_rottenburg.png")))
-        rightLayout.addWidget(appSupporters)
+        # Hochschule für Forstwirtschaft Rottenburg
+        universityLogo = QLabel(pixmap=QPixmap(os.path.join(self._LOGOS_PATH, "university_rottenburg.png")))
+        supportersLayout.addWidget(universityLogo, 1, 0)
+
+        # JOHANNES SCHMIDT FORSTSCHUTZ
+        jsfLogo = QLabel(pixmap=QPixmap(os.path.join(self._LOGOS_PATH, "johannes_schmidt.png")))
+        supportersLayout.addWidget(jsfLogo, 1, 1)
+
+        # TUBEX
+        tubexLogo = QLabel(pixmap=QPixmap(os.path.join(self._LOGOS_PATH, "tubex.png")))
+        supportersLayout.addWidget(tubexLogo, 2, 0)
+
+        rightLayout.addLayout(supportersLayout)
 
         # vertical spacer between the labels and the close button
         spacerSupporters = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
