@@ -26,10 +26,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import os.path
 import sys
+from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QThread
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QSplashScreen
 from gui.window_main import MainWindow
+
+__version__ = "1.0.0-rc.2"
 
 
 def main():
@@ -38,8 +42,10 @@ def main():
     # create splash screen with sponsors
     pixmap = QPixmap(os.path.join("resources","splash", "splash.jpg"))
     splash = QSplashScreen(pixmap)
+    splash.showMessage("  Version: " + __version__, Qt.AlignBottom)
     splash.show()
     app.processEvents()
+    QThread.sleep(3)
 
     window = MainWindow()
     window.show()

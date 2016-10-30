@@ -45,7 +45,7 @@ import os.path
 import sys
 import subprocess
 
-__version__ = "1.0.0"
+__version__ = "1.0.0-rc.2"
 
 
 class AboutDialog(QDialog):
@@ -119,6 +119,9 @@ class AboutDialog(QDialog):
         shCopyright.setFont(shFont)
         rightLayout.addWidget(shCopyright)
 
+        universityLogo = QLabel(pixmap=QPixmap(os.path.join(self._LOGOS_PATH, "university_rottenburg.png")))
+        rightLayout.addWidget(universityLogo)
+
         appCopyright = QLabel("Copyright \N{COPYRIGHT SIGN} 2015-2016 " +
                 QApplication.translate("AboutDialog",
                 "University of Applied Forest Sciences Rottenburg"))     # Hochschule für Forstwirtschaft Rottenburg (HFR)
@@ -139,23 +142,18 @@ class AboutDialog(QDialog):
         rightLayout.addItem(spacerCopyright)
 
         # supporters
-        supportersLayout = QGridLayout()
-        supportersLayout.setSpacing(20)
+        supportersLayout = QGridLayout(spacing=20)
         shSupporters = QLabel(QApplication.translate("AboutDialog", "Supporters"))    # Unterstützer
         shSupporters.setFont(shFont)
         supportersLayout.addWidget(shSupporters, 0, 0, 1, 2)
 
-        # Hochschule für Forstwirtschaft Rottenburg
-        universityLogo = QLabel(pixmap=QPixmap(os.path.join(self._LOGOS_PATH, "university_rottenburg.png")))
-        supportersLayout.addWidget(universityLogo, 1, 0)
+        # TUBEX
+        tubexLogo = QLabel(pixmap=QPixmap(os.path.join(self._LOGOS_PATH, "tubex.png")))
+        supportersLayout.addWidget(tubexLogo, 1, 0)
 
         # JOHANNES SCHMIDT FORSTSCHUTZ
         jsfLogo = QLabel(pixmap=QPixmap(os.path.join(self._LOGOS_PATH, "johannes_schmidt.png")))
         supportersLayout.addWidget(jsfLogo, 1, 1)
-
-        # TUBEX
-        tubexLogo = QLabel(pixmap=QPixmap(os.path.join(self._LOGOS_PATH, "tubex.png")))
-        supportersLayout.addWidget(tubexLogo, 2, 0)
 
         rightLayout.addLayout(supportersLayout)
 
