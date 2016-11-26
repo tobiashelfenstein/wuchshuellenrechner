@@ -33,7 +33,7 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QSplashScreen
 from gui.window_main import MainWindow
 
-__version__ = "1.0.0-rc.2"
+__version__ = "1.0.0"
 
 
 def main():

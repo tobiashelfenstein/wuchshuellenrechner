@@ -55,7 +55,7 @@ from PyQt5.QtCore import QTranslator
 from PyQt5.QtCore import QModelIndex
 
 
-__version__ = "0.0.1"
+__version__ = "1.0.0"
 
 
 class MainWindow(QMainWindow):

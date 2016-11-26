@@ -45,7 +45,7 @@ import os.path
 import sys
 import subprocess
 
-__version__ = "1.0.0-rc.2"
+__version__ = "1.0.0"
 
 
 class AboutDialog(QDialog):
@@ -149,11 +149,20 @@ class AboutDialog(QDialog):
 
         # TUBEX
         tubexLogo = QLabel(pixmap=QPixmap(os.path.join(self._LOGOS_PATH, "tubex.png")))
+        tubexLogo.setContentsMargins(maBottom)
         supportersLayout.addWidget(tubexLogo, 1, 0)
 
         # JOHANNES SCHMIDT FORSTSCHUTZ
         jsfLogo = QLabel(pixmap=QPixmap(os.path.join(self._LOGOS_PATH, "johannes_schmidt.png")))
-        supportersLayout.addWidget(jsfLogo, 1, 1)
+        supportersLayout.addWidget(jsfLogo, 2, 0)
+        
+        # BrennerForst
+        bfLogo = QLabel(pixmap=QPixmap(os.path.join(self._LOGOS_PATH, "brennerforst.png")))
+        supportersLayout.addWidget(bfLogo, 2, 1)
+        
+        # witasek
+        wLogo = QLabel(pixmap=QPixmap(os.path.join(self._LOGOS_PATH, "witasek.png")))
+        supportersLayout.addWidget(wLogo, 3, 0)
 
         rightLayout.addLayout(supportersLayout)
 
