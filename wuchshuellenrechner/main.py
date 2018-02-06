@@ -1,10 +1,10 @@
 """
-main.py -
+main.py - main file of Wuchshüllenrechner
 
-Copyright (C) 2016 Tobias Helfenstein <tobias.helfenstein@mailbox.org>
-Copyright (C) 2016 Anton Hammer <hammer.anton@gmail.com>
-Copyright (C) 2016 Sebastian Hein <hein@hs-rottenburg.de>
-Copyright (C) 2016 Hochschule für Forstwirtschaft Rottenburg <hfr@hs-rottenburg.de>
+Copyright (C) 2018 Tobias Helfenstein <tobias.helfenstein@mailbox.org>
+Copyright (C) 2018 Anton Hammer <hammer.anton@gmail.com>
+Copyright (C) 2018 Sebastian Hein <hein@hs-rottenburg.de>
+Copyright (C) 2018 Hochschule für Forstwirtschaft Rottenburg <hfr@hs-rottenburg.de>
 
 This file is part of Wuchshüllenrechner.
 
@@ -40,7 +40,7 @@ __version__ = "1.0.0"
 def main():
     # define command line parameters
     parser = ArgumentParser()
-    parser.add_argument("-s", "--splash", dest="splash", action="store_false")
+    parser.add_argument("--no-splash", dest="splash", action="store_false")
     args = parser.parse_args()
 
     app = QApplication(sys.argv)
