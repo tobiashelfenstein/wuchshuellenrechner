@@ -155,11 +155,11 @@ class AboutDialog(QDialog):
         # JOHANNES SCHMIDT FORSTSCHUTZ
         jsfLogo = QLabel(pixmap=QPixmap(os.path.join(self._LOGOS_PATH, "johannes_schmidt.png")))
         supportersLayout.addWidget(jsfLogo, 2, 0)
-        
+
         # BrennerForst
         bfLogo = QLabel(pixmap=QPixmap(os.path.join(self._LOGOS_PATH, "brennerforst.png")))
         supportersLayout.addWidget(bfLogo, 2, 1)
-        
+
         # witasek
         wLogo = QLabel(pixmap=QPixmap(os.path.join(self._LOGOS_PATH, "witasek.png")))
         supportersLayout.addWidget(wLogo, 3, 0)
@@ -200,6 +200,7 @@ class ScientificBasisDialog(QDialog):
 
         # initialize class constants
         self._BUTTON_MIN_WIDTH = 110
+        self._OXYGEN_PATH_48 = os.path.join("resources", "icons", "oxygen", "48")
 
         # fonts and margins settings
         hlFont = QFont()
