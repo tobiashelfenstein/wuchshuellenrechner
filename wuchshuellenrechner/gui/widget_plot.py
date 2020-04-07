@@ -438,7 +438,7 @@ class VariantPlotWidget(QWidget):
             self.fenceLine = None
 
         if isinstance(self.arrowItem, MovableArrowItem):
-            #self.arrowItem.disconnect()
+            self.arrowItem.disconnect()
             self.arrowItem = None
 
         self.plotWidget.clear()
@@ -506,32 +506,20 @@ class VariantPlotWidget(QWidget):
     def plotAreaChart(self, children):
         # check parents and children
         # the lists must contain only one item
-        if not len(children) == 1:
-            warning = QMessageBox(self)
-            warning.setWindowModality(Qt.WindowModal)  # check for mac only
-            warning.setIcon(QMessageBox.Warning)
-            warning.setStandardButtons(QMessageBox.Ok)
-            warning.setWindowTitle(QApplication.translate("VariantPlotWidget", "Wuchshüllenrechner"))
-            warning.setText("<b>" + QApplication.translate("VariantPlotWidget",
-                    "Too many variants are enabled!") + "</b>")
-            warning.setInformativeText(QApplication.translate("VariantPlotWidget",
-                    "The area view allows you to set only one variant enabled "
-                    "at the same time. Please select the variant manually or "
-                    "choose the line view."))
-
-            warning.exec()
-
+        if len(children) == 0:
+            print("Fehler")
             return False
-
-        (index,) = children
 
         # clear the plot widget
         self.clear()
 
-        # plot the curve
-        curve = EnhancedCurveItem(index, True)
-        self.plotWidget.addPlotItem(curve)
-        self.curvePlotted.emit(index)
+        # first sort all slopes to plot the area chart
+        # then plot the curves
+        children.sort(key=lambda c: c.data(TreeModel.ResultRole), reverse=True) # is this a good way or is better to sort the model?
+        for child in children:
+            curve = EnhancedCurveItem(child, True)
+            self.plotWidget.addPlotItem(curve)
+            self.curvePlotted.emit(child)
 
         # create point of intersection
         self.createIntersectionPoint()
