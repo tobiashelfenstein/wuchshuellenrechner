@@ -34,6 +34,8 @@ from pyqtgraph import PlotCurveItem
 from pyqtgraph import InfiniteLine
 from pyqtgraph import TextItem
 from pyqtgraph import ArrowItem
+from pyqtgraph import GraphicsObject
+from pyqtgraph import Point
 from pyqtgraph.exporters import ImageExporter
 from pyqtgraph.python2_3 import asUnicode
 import pyqtgraph
@@ -268,7 +270,7 @@ class VariantInfoWidget(QWidget):
             hintArrow = QLabel("<ul style='list-style-type: square; margin-left: -25px;'>" +
                     "<li>" + QApplication.translate("VariantInfoWidget", "the orange arrow displays the result of the calculation") + "</li></ul>", wordWrap=True)                # orangener Pfeil zeigt das Ergebnis der Kalkulation
             hintLines = QLabel("<ul style='list-style-type: square; margin-left: -25px;'>" +
-                    "<li>" + QApplication.translate("VariantInfoWidget", "the auxiliary lines for fence length and number of plants are moveable") + "</li></ul>", wordWrap=True)             # Hilfslinien für Zaunlänge und Pflanzenzahl sind beweglich
+                    "<li>" + QApplication.translate("VariantInfoWidget", "the auxiliary lines for fence length and number of plants are movable") + "</li></ul>", wordWrap=True)             # Hilfslinien für Zaunlänge und Pflanzenzahl sind beweglich
 
             layout.addSpacing(30)
             layout.addWidget(separator)
@@ -377,6 +379,7 @@ class VariantPlotWidget(QWidget):
 
         # connect signals
         self.controlWidget.chartViewChanged.connect(self.updateChartView)
+        self.controlWidget.arrowEnabled.connect(self.setArrowItemVisible)
         self.controlWidget.countEnabled.connect(self.setPlantLineVisible)
         self.controlWidget.lengthEnabled.connect(self.setFenceLineVisible)
 
@@ -434,6 +437,10 @@ class VariantPlotWidget(QWidget):
             self.fenceLine.disconnect()
             self.fenceLine = None
 
+        if isinstance(self.arrowItem, MovableArrowItem):
+            #self.arrowItem.disconnect()
+            self.arrowItem = None
+
         self.plotWidget.clear()
         self.cleared.emit()
 
@@ -487,10 +494,13 @@ class VariantPlotWidget(QWidget):
         self.plotWidget.addPlotItem(self.fenceLine)
 
         # create an arrow item as point of intersection
-        self.arrowItem = ArrowItem(angle=-45, tipAngle=30, baseAngle=20,
+        self.arrowItem = MovableArrowItem(movable=True, angle=-45, tipAngle=30, baseAngle=20,
                 headLen=20, tailLen=None,
                 pen={"color" : "#333", "width" : 2}, brush=QColor(255, 123, 0))
-        self.arrowItem.setPos(self.model.projectData("length"), self.model.projectData("count"))
+        self.arrowItem.sigPositionChangeFinished.connect(self.updateArrow)
+        self.arrowItem.setPos((self.model.projectData("length"), self.model.projectData("count")))
+
+        self.controlWidget.setArrow()
         self.plotWidget.addPlotItem(self.arrowItem)
 
     def plotAreaChart(self, children):
@@ -582,6 +592,25 @@ class VariantPlotWidget(QWidget):
 
             notice.exec()
 
+    def updateArrow(self, arrow):
+        """
+        TODO
+        Hier ist es eventuell hilfreich einige Funktionen zu vereinfachen und zusammenzufassen,
+        weil es sehr ähnliche Elemente gibt. Außerdem wäre es vielleicht sinnvoll die setProjectData und setLength
+        zusammenzufassen und mit einem Signal zu verbinden. Ein eleganter Weg sollte gesucht werden.
+        """
+        # get fence length and plant count from arrow's postion
+        (length, count) = map(int, arrow.pos())
+
+        # update the model to save the new postion
+        self.model.setProjectData("length", length)
+        self.controlWidget.setLength(length)
+        self.model.setProjectData("count", count)
+        self.controlWidget.setCount(count)
+
+        # update the legend
+        self.plotReady.emit()
+
     def updateCount(self, line):
         # save the new value in the model and
         # update the control widget
@@ -590,7 +619,7 @@ class VariantPlotWidget(QWidget):
         self.controlWidget.setCount(count)
 
         # change the arrow item
-        self.arrowItem.setPos(self.model.projectData("length"), self.model.projectData("count"))
+        self.arrowItem.setPos((self.model.projectData("length"), self.model.projectData("count")))
 
         # update the legend
         self.plotReady.emit()
@@ -603,7 +632,7 @@ class VariantPlotWidget(QWidget):
         self.controlWidget.setLength(length)
 
         # change the arrow item
-        self.arrowItem.setPos(self.model.projectData("length"), self.model.projectData("count"))
+        self.arrowItem.setPos((self.model.projectData("length"), self.model.projectData("count")))
 
         # update the legend
         self.plotReady.emit()
@@ -616,11 +645,20 @@ class VariantPlotWidget(QWidget):
         self.plantLine.setVisible(state)
 
     def setFenceLineVisible(self, state):
-        # check, if plant line is not None to avoid errors
+        # check, if fence line is not None to avoid errors
         if not self.fenceLine:
             return False
 
         self.fenceLine.setVisible(state)
+
+    # improvement for new version 2.0
+    # mail from Sebastian Hein at 2020-03-30
+    def setArrowItemVisible(self, state):
+        # check, if arrow item is not None to avoid errors
+        if not self.arrowItem:
+            return False
+
+        self.arrowItem.setVisible(state)
 
 
 class EnhancedCurveItem(PlotCurveItem):
@@ -822,6 +860,7 @@ class PlotControlWidget(QWidget):
     chartViewChanged = pyqtSignal(int)
     lengthEnabled = pyqtSignal(bool)
     countEnabled = pyqtSignal(bool)
+    arrowEnabled = pyqtSignal(bool)
     lengthChanged = pyqtSignal(int)
     countChanged = pyqtSignal(int)
     lengthFinished = pyqtSignal()
@@ -835,6 +874,13 @@ class PlotControlWidget(QWidget):
         # create labels and input fields
         self.viewLabel = QLabel()
         self.viewInput = QComboBox(self)
+
+        # enable arrow item
+        # improvement for new version 2.0
+        # mail from Sebastian Hein at 2020-03-30
+        self.arrowCheckBox = QCheckBox()
+        self.arrowCheckBox.setCheckState(Qt.Checked)
+        self.arrowCheckBox.setDisabled(True)
 
         self.lengthCheckBox = QCheckBox()
         self.lengthCheckBox.setCheckState(Qt.Checked)
@@ -860,6 +906,7 @@ class PlotControlWidget(QWidget):
         layout.addWidget(self.viewLabel)
         layout.addWidget(self.viewInput)
         layout.addStretch()
+        layout.addWidget(self.arrowCheckBox)
         layout.addWidget(self.lengthCheckBox)
         layout.addWidget(self.lengthInput)
         layout.addWidget(lineFrame)
@@ -869,6 +916,7 @@ class PlotControlWidget(QWidget):
 
         # connect signals
         self.viewInput.currentIndexChanged.connect(self.chartViewChanged)
+        self.arrowCheckBox.stateChanged.connect(self.enableArrowItem)
         self.lengthCheckBox.stateChanged.connect(self.enableLengthInput)
         self.countCheckBox.stateChanged.connect(self.enableCountInput)
         self.lengthInput.valueChanged.connect(self.lengthChanged)
@@ -884,6 +932,12 @@ class PlotControlWidget(QWidget):
         dialog = PlantCountDialog()
         if dialog.exec() == QDialog.Accepted:
             self.countInput.setValue(dialog.value)
+
+    def enableArrowItem(self, state):
+        if state == Qt.Checked:
+            self.arrowEnabled.emit(True)
+        else:
+            self.arrowEnabled.emit(False)
 
     def enableLengthInput(self, state):
         if state == Qt.Checked:
@@ -902,6 +956,9 @@ class PlotControlWidget(QWidget):
             self.countInput.setDisabled(True)
             self.countCalculator.setDisabled(True)
             self.countEnabled.emit(False)
+
+    def setArrow(self):
+        self.arrowCheckBox.setEnabled(True)
 
     def setLength(self, length):
         self.lengthCheckBox.setEnabled(True)
@@ -940,6 +997,7 @@ class PlotControlWidget(QWidget):
         for item in self._COMBOBOX_ITEM_LIST:
             self.viewInput.addItem(QApplication.translate("PlotControlWidget", item))
 
+        self.arrowCheckBox.setText(QApplication.translate("PlotControlWidget", "Ergebnispfeil"))
         self.lengthCheckBox.setText(QApplication.translate("PlotControlWidget", "Fence length") + ":")          # Zaunlänge
         self.countCheckBox.setText(QApplication.translate("PlotControlWidget", "Number of plants") + ":")       # Anzahl der Pflanzen
         self.countCalculator.setText(QApplication.translate("PlotControlWidget", "Calculation help"))           # Umrechnungshilfe
@@ -1137,3 +1195,178 @@ class ColorLine(QFrame):
 
         self.palette.setColor(QPalette.Foreground, self._farbe)
         self.setPalette(self.palette)
+
+
+class MovableArrowItem(GraphicsObject):
+    """
+
+    Soweit funktioniert diese Klasse. Jedoch muss die Funktion zur Berechnung des BoundingRect verbessert werden.
+    Diese ist hardcoded und muss von der größe des Pfeils abhängen.
+
+    Die Hover-Funktion kann verbessert werden, indem der Pfeil bei Hover aktiv dargestellt wird. Das sollte
+    bei den Linien ähnlich sei. Darüber hinaus können einige Funktionen gestrichen werden.
+
+    Als weiteren Punkt muss die Paint-Funktion einen Rahmen zeichen, damit ich nachvollziehen kann,
+    wo der aktive Bereich des Pfeils ist.
+
+    """
+
+    sigDragged = QtCore.Signal(object)
+    sigPositionChanged = QtCore.Signal(object)
+    sigPositionChangeFinished = QtCore.Signal(object)
+
+    def __init__(self, movable=True, name=None, **opts):
+        """The constructor initializes the class MovableArrowItem."""
+        super().__init__()
+
+        self.arrow = ArrowItem(**opts)
+        self.arrow.setParentItem(self)
+
+        self._boundingRect = None
+
+        self._name = name
+
+        # movable
+        self.moving = False
+        self.setMovable(movable)
+        self.mouseHovering = False
+        self.p = [0, 0]
+
+        #if pos is None:
+        pos = QtCore.QPointF(0, 0)
+        self.setPos(pos)
+
+        # cache variables for managing bounds
+        self._endPoints = [0, 1]
+        self._bounds = None
+        self._lastViewSize = None
+
+    def setMovable(self, m):
+        """Set whether the line is movable by the user."""
+        self.movable = m
+        self.setAcceptHoverEvents(m)
+
+    def setStyle(self, **opts):
+        return self.arrow.setStyle(**opts)
+
+    def setPos(self, pos):
+        if type(pos) in [list, tuple]:
+            newPos = pos
+        elif isinstance(pos, QtCore.QPointF):
+            newPos = [pos.x(), pos.y()]
+        else:
+            raise Exception("Must specify 2D coordiante for non-orthogonal lines.")
+
+        if self.p != newPos:
+            self.p = newPos
+            self._invalidateCache()
+            super().setPos(Point(self.p))
+
+            self.sigPositionChanged.emit(self)
+
+    def getXPos(self):
+        return self.p[0]
+
+    def getYPos(self):
+        return self.p[1]
+
+    def getPos(self):
+        return self.p
+
+    def _invalidateCache(self):
+        self._boundingRect = None
+
+    def hoverEvent(self, ev):
+        if (not ev.isExit()) and self.movable and ev.acceptDrags(QtCore.Qt.LeftButton):
+            self.setMouseHover(True)
+        else:
+            self.setMouseHover(False)
+
+    def setMouseHover(self, hover):
+        if self.mouseHovering == hover:
+            return
+
+        self.mouseHovering = hover
+        self.update()
+
+    def mouseDragEvent(self, ev):
+        if self.movable and ev.button() == QtCore.Qt.LeftButton:
+            if ev.isStart():
+                self.moving = True
+                self.cursorOffset = self.pos() - self.mapToParent(ev.buttonDownPos())
+                self.startPosition = self.pos()
+            ev.accept()
+
+            if not self.moving:
+                return
+
+            self.setPos(self.cursorOffset + self.mapToParent(ev.pos()))
+            self.sigDragged.emit(self)
+            if ev.isFinish():
+                self.moving = False
+                self.sigPositionChangeFinished.emit(self)
+
+    def mouseClickEvent(self, ev):
+        if self.moving and ev.button() == QtCore.Qt.RightButton:
+            ev.accept()
+            self.setPos(self.startPosition)
+            self.moving = False
+            self.sigDragged.emit(self)
+            self.sigPositionChangeFinished.emit(self)
+
+    def _computeBoundingRect(self):
+        br = self.arrow.boundingRect()
+
+        vr = self.viewRect()
+        if vr is None:
+            return QtCore.QRectF()
+
+        # add a 4-pixel radius around the line for mouse interaction
+        px = self.pixelLength(direction=Point(1,0))
+        if px is None:
+            px = 0
+
+        """w = 4
+        w = w * px
+        br = QtCore.QRectF(vr)
+        br.setBottom(-w)
+        br.setTop(w)
+
+        length = br.width()
+        left = br.left() + 200
+        right = br.left() + 200
+        br.setLeft(left - w)
+        br.setRight(right + w)
+        br = br.normalized()"""
+
+        br.setWidth(200)
+        br.setHeight(200)
+        br = br.normalized() # needed?
+
+        if self._bounds != br:
+            self._bounds = br
+            self.prepareGeometryChange()
+
+        return self._bounds
+
+    def boundingRect(self):
+        if self._boundingRect is None:
+            self._boundingRect = self._computeBoundingRect()
+
+        return self._boundingRect
+
+    def paint(self, p, *args):
+        pass
+
+    def viewTransformChanged(self):
+        """
+        Called whenever the transformation matrix of the view has changed.
+        (eg, the view range has changed or the view was resized)
+        """
+        self._invalidateCache()
+
+    def setName(self, name):
+        self._name = name
+
+    def name(self):
+        return self._name
